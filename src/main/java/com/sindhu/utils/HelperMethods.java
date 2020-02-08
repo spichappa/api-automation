@@ -22,8 +22,6 @@ import io.restassured.specification.RequestSpecification;
 import java.util.regex.*;
 
 public class HelperMethods {
-	private static Matcher matcher;
-
 
 	public static String searchUser(String searchUserName) throws MalformedURLException {
 		/*
@@ -40,16 +38,17 @@ public class HelperMethods {
 
 		String responseString = response.asString();
 
-//		List<Object> fetchUserName = com.jayway.jsonpath.JsonPath.parse(responseString).read("$.[?(@.username=='"+searchUserName+"')].username");
-		List<Object> fetchUserName = com.jayway.jsonpath.JsonPath.parse(responseString)
-				.read("$.[?(@.username=='Samantha')].username");
-		String getUserName = fetchUserName.toString();
-//		System.out.println("HelperMethods -> Searched User Name Value is "+getUserName);
+		List<Object> userList = com.jayway.jsonpath.JsonPath.parse(responseString)
+				.read("$.[?(@.username=='" + searchUserName + "')].username");
 
-		return getUserName;
+		if (userList == null || userList.isEmpty()) {
+			return null;
+		}
+
+		return (String) userList.get(0);
 	}
 
-	public static int getUserId(String UserName) throws MalformedURLException {
+	public static int getUserId(String userName) throws MalformedURLException {
 		/*
 		 * Get the UserId for a particular user given the userName as input argument
 		 * from the '/users' API response content
@@ -66,8 +65,14 @@ public class HelperMethods {
 
 		// Fetching the UserId of a particular userName as given parameter
 
+		System.out.println("userName === " + userName);
+
 		List<Object> filteredIds = com.jayway.jsonpath.JsonPath.parse(responseString)
-				.read("$[?(@.username == 'Samantha')].id");
+				.read("$[?(@.username == '" + userName + "')].id");
+
+		if (filteredIds == null || filteredIds.isEmpty()) {
+			return -1;
+		}
 
 		Integer id = (Integer) filteredIds.get(0);
 
@@ -207,10 +212,10 @@ public class HelperMethods {
 
 		for (Object emailID : email) {
 			System.out.println("Object Value is:" + emailID);
-			matcher = pattern.matcher((CharSequence) emailID);
 			emailValidationResult = pattern.matcher((CharSequence) emailID).matches();
-			if (emailValidationResult == false)
+			if (!emailValidationResult) {
 				return false;
+			}
 		}
 
 		return emailValidationResult;

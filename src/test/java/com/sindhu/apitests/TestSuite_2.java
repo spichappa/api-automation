@@ -29,7 +29,7 @@ public class TestSuite_2 {
 		String userName = "NotAUser";
 		System.out.println("UserName====>" + userName);
 		String searchResult = HelperMethods.searchUser(userName);
-//		Assert.assertNotEquals(userName, searchResult);
+		Assert.assertNotEquals(userName, searchResult);
 		System.out.println("Search for the user " + searchResult + ": is Not found!!!");
 	}
 
@@ -59,7 +59,7 @@ public class TestSuite_2 {
 
 		String UserName = "InvalidUser";
 		int userId = HelperMethods.getUserId(UserName);
-//		Assert.assertNull(userId, "UserId Does Not Exists");
+		Assert.assertEquals(userId, -1);
 		System.out.println(userId);
 	}
 
@@ -75,32 +75,32 @@ public class TestSuite_2 {
 	@Test
 	public void T06_fetchCommentsByUserName() throws MalformedURLException {
 
-		String userName = "Samantha";
+		String userName = "UnknowUser";
 		int userId = HelperMethods.getUserId(userName);
 		Integer[] postId = HelperMethods.getPostId(userId);
-		Assert.assertNotNull(HelperMethods.getComments(postId), "Comments are Listed Out for the User");
+		Assert.assertNotNull(HelperMethods.getComments(postId), "Comments are Not Listed Out for the User");
 	}
 
 	@Test
 	public void T07_fetchEmailsByPostIds() throws MalformedURLException {
 
-		String userName = "Samantha";
+		String userName = "UnknowUser";
 		int userId = HelperMethods.getUserId(userName);
 		Integer[] postId = HelperMethods.getPostId(userId);
-		Assert.assertNotNull(HelperMethods.getEmailAdresses(postId), "Email Addresses are Listed Out for the User");
+		Assert.assertNotNull(HelperMethods.getEmailAdresses(postId), "Email Addresses are Not Listed Out for the User");
 	}
 
 	@Test
-	public void T08_fetchEmailsByPostId() throws MalformedURLException {
+	public void T07_fetchEmailsByPostId() throws MalformedURLException {
 
 		String userName = "Samantha";
 		int userId = HelperMethods.getUserId(userName);
 //		Integer[] postId = HelperMethods.getPostId(userId);
-		int postId = 21;
-		
-		Assert.assertNotNull(HelperMethods.getEmailAdressesByPostId(postId),
-				"Email Addresses are Listed Out for the User");
-		boolean isValidEmailList = HelperMethods.isValidEmailAddress(HelperMethods.getEmailAdressesByPostId(postId));
-		Assert.assertTrue(isValidEmailList, "Emails in the list are valid");
+		int postId = 201;
+		ArrayList<String> emailList = HelperMethods.getEmailAdressesByPostId(postId);
+		Assert.assertNotNull(emailList, "Email Addresses are Not Listed Out for the User");
+		boolean isValidEmailList = HelperMethods.isValidEmailAddress(emailList);
+		Assert.assertTrue(isValidEmailList, "Emails in the list are Not valid");
+
 	}
 }

@@ -69,9 +69,7 @@ public class TestSuite_01 {
 
 	@Test
 	public void T04_searchForUserId() throws MalformedURLException {
-
-		String UserName = "";
-		int userId = HelperMethods.getUserId(UserName);
+		int userId = HelperMethods.getUserId("Samantha");
 		Assert.assertNotNull(userId, "UserId Does Not Exists");
 		System.out.println(userId);
 	}
