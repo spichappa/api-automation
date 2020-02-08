@@ -12,18 +12,19 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import sun.util.logging.PlatformLogger.ConfigurableBridge.LoggerConfiguration;
+
+import java.util.regex.*;
 
 public class HelperMethods {
+	private static Matcher matcher;
+
+
 	public static String searchUser(String searchUserName) throws MalformedURLException {
 		/*
 		 * Search By User Method to find a particular user given the userName as input
@@ -36,14 +37,15 @@ public class HelperMethods {
 
 		int code = response.getStatusCode();
 		System.out.println("Search User : Status Code:" + code);
-		
+
 		String responseString = response.asString();
 
 //		List<Object> fetchUserName = com.jayway.jsonpath.JsonPath.parse(responseString).read("$.[?(@.username=='"+searchUserName+"')].username");
-		List<Object> fetchUserName = com.jayway.jsonpath.JsonPath.parse(responseString).read("$.[?(@.username=='Samantha')].username");
-		String getUserName = fetchUserName.toString();			
+		List<Object> fetchUserName = com.jayway.jsonpath.JsonPath.parse(responseString)
+				.read("$.[?(@.username=='Samantha')].username");
+		String getUserName = fetchUserName.toString();
 //		System.out.println("HelperMethods -> Searched User Name Value is "+getUserName);
-		
+
 		return getUserName;
 	}
 
@@ -100,7 +102,7 @@ public class HelperMethods {
 
 	}
 
-	public static ArrayList<String> getComments(Integer[] PostId) throws MalformedURLException {
+	public static ArrayList<String> getComments(Integer[] postId) throws MalformedURLException {
 		/*
 		 * Get the List of Comments for a particular user's posts given their postIds as
 		 * input argument from the '/comments' API response content
@@ -112,12 +114,12 @@ public class HelperMethods {
 
 		int code = response.getStatusCode();
 		System.out.println("Status Code:" + code);
-		//	Assert.assertEquals(code,200);
+		// Assert.assertEquals(code,200);
 
 		String responseString = response.asString();
 		ArrayList<String> postsList = new ArrayList<String>();
 
-		for (int pIds : PostId) {
+		for (int pIds : postId) {
 			List<Object> fetchComments = com.jayway.jsonpath.JsonPath.parse(responseString)
 					.read("$[?(@.postId == " + pIds + ")].body");
 			String postedComments = fetchComments.toString();
@@ -140,7 +142,7 @@ public class HelperMethods {
 
 		int code = response.getStatusCode();
 		System.out.println("Status Code:" + code);
-		Assert.assertEquals(code,200);
+		Assert.assertEquals(code, 200);
 
 		String responseString = response.asString();
 		ArrayList<String> emailList = new ArrayList<String>();
@@ -149,18 +151,69 @@ public class HelperMethods {
 			List<Object> fetchEmaiAddress = com.jayway.jsonpath.JsonPath.parse(responseString)
 					.read("$[?(@.postId == " + pIds + ")].email");
 			String postedEmail = fetchEmaiAddress.toString();
-			System.out.println("-------------Email Addresses----------" + postedEmail);
+			System.out.println("-------------Email Addresses of the PostID# " + pIds + "----------" + postedEmail);
 
 			emailList.add(postedEmail);
 		}
 		return emailList;
 	}
 
+	public static ArrayList<String> getEmailAdressesByPostId(int PostId) throws MalformedURLException {
+		/*
+		 * Get the List of Email Addresses for a particular user's posts given their
+		 * postIds as input argument from the '/comments' API response content
+		 */
+
+		RestAssured.baseURI = "https://jsonplaceholder.typicode.com";
+		RequestSpecification httpRequest = RestAssured.given();
+		Response response = httpRequest.get("/comments");
+
+		int code = response.getStatusCode();
+		System.out.println("Status Code:" + code);
+		Assert.assertEquals(code, 200);
+
+		String responseString = response.asString();
+		ArrayList<String> emailList = new ArrayList<String>();
+
+		List<Object> fetchEmaiAddress = com.jayway.jsonpath.JsonPath.parse(responseString)
+				.read("$[?(@.postId == " + PostId + ")].email");
+
+		for (Object object : fetchEmaiAddress) {
+			emailList.add((String) object);
+		}
+
+		return emailList;
+	}
+
 	public static void displayStringList(ArrayList<String> dataContents) throws MalformedURLException {
-		Iterator iter = dataContents.iterator();
+		Iterator<String> iter = dataContents.iterator();
 		while (iter.hasNext()) {
 			System.out.println("------Comments data ------" + iter.next());
 		}
+	}
+
+	public static boolean isValidEmailAddress(ArrayList<String> email) {
+		String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\." + "[a-zA-Z0-9_+&*-]+)*@" + "(?:[a-zA-Z0-9-]+\\.)+[a-z"
+				+ "A-Z]{2,7}$";
+		boolean emailValidationResult = true;
+		Pattern pattern = Pattern.compile(emailRegex);
+
+		Object[] objects = email.toArray();
+
+		// Printing array of objects
+
+		int len = objects.length;
+		System.out.println("Object Length is:" + len);
+
+		for (Object emailID : email) {
+			System.out.println("Object Value is:" + emailID);
+			matcher = pattern.matcher((CharSequence) emailID);
+			emailValidationResult = pattern.matcher((CharSequence) emailID).matches();
+			if (emailValidationResult == false)
+				return false;
+		}
+
+		return emailValidationResult;
 	}
 
 	public static void main(String[] args) throws MalformedURLException {
@@ -181,6 +234,7 @@ public class HelperMethods {
 
 		ArrayList<String> fetchListOfEmails = getEmailAdresses(postIds);
 //	displayStringList(fetchListOfEmails);
+		boolean validEmailList = isValidEmailAddress(fetchListOfEmails);
 
 	}
 

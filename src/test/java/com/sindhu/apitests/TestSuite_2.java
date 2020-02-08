@@ -1,8 +1,8 @@
-/*POSITIVE TESTCASES
- * This is the first suite to validate backend api calls for the below Postive Usecases
- * 1) Before Test Check : /users apiMethod status code
- * 2) Before Test Check : /users apiMethod status posts
- * 3) Before Test Check : /users apiMethod status comments
+/*NEGATIVE TESTCASES
+ * This is the first suite to validate backend api calls for the below Negative Usecases
+ * 1) Before Test Check : /users apiMethod status code is not Equal to 200
+ * 2) Before Test Check : /users apiMethod status posts is not Equal to 200
+ * 3) Before Test Check : /users apiMethod status comments is not Equal to 200
  * 4) Search for the userName
  * 5) Fetch the userID given the userName
  * 6) Fetch the postID given the userName & inside logic by userID
@@ -13,44 +13,40 @@
 package com.sindhu.apitests;
 
 import com.sindhu.utils.HelperMethods;
-
-import io.restassured.response.Response;
-
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-public class TestSuite_01 {
-
-	@BeforeTest
-	/*
-	 * Verify the http response status returned. Check Status Code is 200? We can
-	 * use Rest Assured library's response's getStatusCode method
-	 */
-//	public static void checkStatusIs200(Response res) {
-//		Assert.assertEquals(200, res.getStatusCode(), "Status Check Success!");
-//	}
+public class TestSuite_2 {
 
 	/*
 	 * Test01
 	 */
 	@Test
 	public void T01_searchForUserName() throws MalformedURLException {
-		String userName = "Samantha";
-		System.out.println("Search by UserName====>" + userName);
-		String searchResult = HelperMethods.searchUser(userName).toString();
+		String userName = "NotAUser";
+		System.out.println("UserName====>" + userName);
+		String searchResult = HelperMethods.searchUser(userName);
+//		Assert.assertNotEquals(userName, searchResult);
+		System.out.println("Search for the user " + searchResult + ": is Not found!!!");
+	}
 
-		System.out.println("Search for the user " + searchResult + ": is found!!!");
-
-		// Verify the response contained the relevant searched username
-//        Assert.assertEquals( searchResult,userName);
+	/*
+	 * Test02
+	 */
+	@Test
+	public void T02_searchForUserName() throws MalformedURLException {
+		String userName = "12345678";
+		System.out.println("UserName====>" + userName);
+		String searchResult = HelperMethods.searchUser(userName);
+		Assert.assertNotEquals(userName, searchResult);
+		System.out.println("Search for the user " + searchResult + ": is Not found!!!");
 	}
 
 	@Test
-	public void T02_searchForUserId() throws MalformedURLException {
+	public void T03_searchForUserId() throws MalformedURLException {
 
 		String UserName = "Samantha";
 		int userId = HelperMethods.getUserId(UserName);
@@ -59,7 +55,7 @@ public class TestSuite_01 {
 	}
 
 	@Test
-	public void T03_searchForUserId() throws MalformedURLException {
+	public void T04_searchForUserId() throws MalformedURLException {
 
 		String UserName = "InvalidUser";
 		int userId = HelperMethods.getUserId(UserName);
@@ -68,7 +64,7 @@ public class TestSuite_01 {
 	}
 
 	@Test
-	public void T04_searchForUserId() throws MalformedURLException {
+	public void T05_searchForUserId() throws MalformedURLException {
 
 		String UserName = "";
 		int userId = HelperMethods.getUserId(UserName);
@@ -77,7 +73,7 @@ public class TestSuite_01 {
 	}
 
 	@Test
-	public void T05_fetchCommentsByUserName() throws MalformedURLException {
+	public void T06_fetchCommentsByUserName() throws MalformedURLException {
 
 		String userName = "Samantha";
 		int userId = HelperMethods.getUserId(userName);
@@ -86,7 +82,7 @@ public class TestSuite_01 {
 	}
 
 	@Test
-	public void T06_fetchEmailsByPostIds() throws MalformedURLException {
+	public void T07_fetchEmailsByPostIds() throws MalformedURLException {
 
 		String userName = "Samantha";
 		int userId = HelperMethods.getUserId(userName);
@@ -95,16 +91,16 @@ public class TestSuite_01 {
 	}
 
 	@Test
-	public void T07_fetchEmailsByPostId() throws MalformedURLException {
+	public void T08_fetchEmailsByPostId() throws MalformedURLException {
 
 		String userName = "Samantha";
 		int userId = HelperMethods.getUserId(userName);
 //		Integer[] postId = HelperMethods.getPostId(userId);
 		int postId = 21;
-		ArrayList<String> emailList = HelperMethods.getEmailAdressesByPostId(postId);
-		Assert.assertNotNull(emailList, "Email Addresses are Listed Out for the User");
-		boolean isValidEmailList = HelperMethods.isValidEmailAddress(emailList);
+		
+		Assert.assertNotNull(HelperMethods.getEmailAdressesByPostId(postId),
+				"Email Addresses are Listed Out for the User");
+		boolean isValidEmailList = HelperMethods.isValidEmailAddress(HelperMethods.getEmailAdressesByPostId(postId));
 		Assert.assertTrue(isValidEmailList, "Emails in the list are valid");
-
 	}
 }
