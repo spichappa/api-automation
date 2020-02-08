@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -20,9 +21,10 @@ import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import sun.util.logging.PlatformLogger.ConfigurableBridge.LoggerConfiguration;
 
 public class HelperMethods {
-	public static boolean searchUser(String UserName) throws MalformedURLException {
+	public static String searchUser(String searchUserName) throws MalformedURLException {
 		/*
 		 * Search By User Method to find a particular user given the userName as input
 		 * argument from the '/users' API response content
@@ -34,19 +36,15 @@ public class HelperMethods {
 
 		int code = response.getStatusCode();
 		System.out.println("Search User : Status Code:" + code);
+		
+		String responseString = response.asString();
 
-		// First get the JsonPath object instance from the Response interface
-		JsonPath jsonPathEvaluator = response.jsonPath();
-
-		// Fetching value of userName parameter
-		List<Object> usersList = jsonPathEvaluator.get("username");
-		System.out.println(usersList);
-		boolean userNameExists = jsonPathEvaluator.get("username").equals("Samantha");
-
-		// Asserting that userName is Samantha
-		// Assert.assertEquals(UserName, "Samantha");
-
-		return userNameExists;
+//		List<Object> fetchUserName = com.jayway.jsonpath.JsonPath.parse(responseString).read("$.[?(@.username=='"+searchUserName+"')].username");
+		List<Object> fetchUserName = com.jayway.jsonpath.JsonPath.parse(responseString).read("$.[?(@.username=='Samantha')].username");
+		String getUserName = fetchUserName.toString();			
+//		System.out.println("HelperMethods -> Searched User Name Value is "+getUserName);
+		
+		return getUserName;
 	}
 
 	public static int getUserId(String UserName) throws MalformedURLException {
@@ -62,7 +60,7 @@ public class HelperMethods {
 		int code = response.getStatusCode();
 		System.out.println("Get UserID : Status Code:" + code);
 
-		String responseString = response.asString();
+		String responseString = response.body().asString();
 
 		// Fetching the UserId of a particular userName as given parameter
 
@@ -71,7 +69,7 @@ public class HelperMethods {
 
 		Integer id = (Integer) filteredIds.get(0);
 
-		System.out.println("Samantha id = " + id);
+		System.out.println("HelperMethods -> Fetched User ID = " + id);
 
 		return id;
 
@@ -114,7 +112,7 @@ public class HelperMethods {
 
 		int code = response.getStatusCode();
 		System.out.println("Status Code:" + code);
-//	Assert.assertEquals(code,200);
+		//	Assert.assertEquals(code,200);
 
 		String responseString = response.asString();
 		ArrayList<String> postsList = new ArrayList<String>();
@@ -142,7 +140,7 @@ public class HelperMethods {
 
 		int code = response.getStatusCode();
 		System.out.println("Status Code:" + code);
-//	Assert.assertEquals(code,200);
+		Assert.assertEquals(code,200);
 
 		String responseString = response.asString();
 		ArrayList<String> emailList = new ArrayList<String>();
@@ -154,7 +152,6 @@ public class HelperMethods {
 			System.out.println("-------------Email Addresses----------" + postedEmail);
 
 			emailList.add(postedEmail);
-//		System.out.println(emailList.get(0));
 		}
 		return emailList;
 	}
@@ -170,7 +167,7 @@ public class HelperMethods {
 
 		String UserName = "Samantha";
 		System.out.println("UserName====>" + UserName);
-		boolean searchResult = searchUser(UserName);
+		String searchResult = searchUser(UserName);
 		System.out.println(searchResult);
 
 		int getUserId = getUserId(UserName);
@@ -185,65 +182,6 @@ public class HelperMethods {
 		ArrayList<String> fetchListOfEmails = getEmailAdresses(postIds);
 //	displayStringList(fetchListOfEmails);
 
-	}
-
-	/*
-	 * Test01
-	 */
-	@Test
-	public void T01_searchForUserName() throws MalformedURLException {
-		String UserName = "Samantha";
-		System.out.println("UserName====>" + UserName);
-		boolean searchResult = searchUser(UserName);
-		Assert.assertEquals(searchResult, true);
-		System.out.println(searchResult);
-	}
-
-	/*
-	 * Test02
-	 */
-	@Test
-	public void T02_searchForUserName() throws MalformedURLException {
-		String UserName = "InvalidUser";
-		boolean searchResult = searchUser(UserName);
-		Assert.assertEquals(searchResult, false);
-		System.out.println(searchResult);
-	}
-
-	/*
-	 * Test03
-	 */
-	@Test
-	public void T03_searchForUserName() throws MalformedURLException {
-		String UserName = "InvalidUser";
-		boolean searchResult = searchUser(UserName);
-		Assert.assertEquals(searchResult, false);
-		System.out.println(searchResult);
-	}
-
-	@Test
-	public void T04_searchForUserId() throws MalformedURLException {
-
-		String UserName = "Samantha";
-		int userId = getUserId(UserName);
-		Assert.assertNotNull(userId, "UserId Exists");
-		System.out.println(userId);
-	}
-
-	public void T05_searchForUserId() throws MalformedURLException {
-
-		String UserName = "InvalidUser";
-		int userId = getUserId(UserName);
-		Assert.assertNotNull(userId, "UserId Does Not Exists");
-		System.out.println(userId);
-	}
-
-	public void T06_searchForUserId() throws MalformedURLException {
-
-		String UserName = "InvalidUser";
-		int userId = getUserId(UserName);
-		Assert.assertNotNull(userId, "UserId Does Not Exists");
-		System.out.println(userId);
 	}
 
 }
